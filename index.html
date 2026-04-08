@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>火星拓荒者：微型生态系统构建挑战</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e1a;--surface:#111827;--surface2:#1a2236;--border:#2a3550;
+  --text:#e8eaf0;--text2:#8892a4;--text3:#4a5568;
+  --red:#ef4444;--orange:#f97316;--yellow:#eab308;--green:#22c55e;--blue:#3b82f6;--purple:#a855f7;--teal:#14b8a6;
+  --danger-bg:#2d1111;--danger-border:#7f1d1d;
+  --warn-bg:#1f1a0a;--warn-border:#78350f;
+}
+body{background:var(--bg);color:var(--text);font-family:'PingFang SC','Microsoft YaHei',system-ui,sans-serif;min-height:100vh;font-size:14px}
+
+/* LOGIN */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:32px}
+.login-title{text-align:center}
+.login-title h1{font-size:28px;font-weight:600;letter-spacing:2px;margin-bottom:8px}
+.login-title p{color:var(--text2);font-size:14px}
+.role-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;width:640px}
+.role-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:all .2s;text-align:center}
+.role-card:hover{border-color:var(--blue);background:var(--surface2);transform:translateY(-2px)}
+.role-card .icon{font-size:32px;margin-bottom:10px}
+.role-card h3{font-size:15px;font-weight:500;margin-bottom:4px}
+.role-card p{color:var(--text2);font-size:12px;line-height:1.5}
+.role-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;margin-top:8px;font-weight:500}
+
+/* HEADER */
+#app{display:none}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:16px}
+.header-logo{font-size:16px;font-weight:600;flex:1}
+.header-logo span{color:var(--orange)}
+.role-tag{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500}
+.day-counter{color:var(--text2);font-size:13px}
+.day-num{color:var(--yellow);font-weight:600;font-size:18px}
+.header-btns{display:flex;gap:8px}
+.btn{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;font-size:13px;transition:all .15s}
+.btn:hover{background:var(--surface2)}
+.btn-danger{border-color:var(--red);color:var(--red)}
+.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-primary:hover{background:#2563eb}
+
+/* LAYOUT */
+.main{display:grid;grid-template-columns:280px 1fr 300px;gap:0;height:calc(100vh - 53px)}
+
+/* LEFT: STATUS PANEL */
+.left-panel{background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:16px}
+.panel-title{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+
+.gauge-row{margin-bottom:14px}
+.gauge-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.gauge-label span:first-child{font-size:13px;color:var(--text2)}
+.gauge-label span:last-child{font-size:13px;font-weight:500}
+.gauge-bar{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.gauge-fill{height:100%;border-radius:4px;transition:width .6s ease,background .3s}
+
+.status-ok{color:var(--green)}
+.status-warn{color:var(--yellow)}
+.status-danger{color:var(--red)}
+
+.crisis-box{background:var(--danger-bg);border:1px solid var(--danger-border);border-radius:8px;padding:12px;margin-bottom:16px;display:none}
+.crisis-box.active{display:block}
+.crisis-title{color:var(--red);font-weight:600;font-size:13px;margin-bottom:4px}
+.crisis-desc{color:#fca5a5;font-size:12px;line-height:1.5}
+
+.info-box{background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:8px;padding:10px;margin-bottom:12px;font-size:12px;color:#fde68a;line-height:1.6;display:none}
+.info-box.show{display:block}
+
+/* CENTER: CONTROL PANEL */
+.center-panel{overflow-y:auto;padding:20px;background:var(--bg)}
+.section-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+.section-card h3{font-size:14px;font-weight:500;margin-bottom:14px;color:var(--text)}
+.section-card.locked{opacity:.4;pointer-events:none;position:relative}
+.locked-overlay{display:none}
+.section-card.locked .locked-overlay{display:flex;position:absolute;inset:0;align-items:center;justify-content:center;border-radius:12px;background:rgba(0,0,0,.5);font-size:13px;color:var(--text2)}
+
+.param-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.param-label{font-size:13px;color:var(--text2);width:100px;flex-shrink:0}
+.param-slider{flex:1}
+input[type=range]{width:100%;accent-color:var(--blue);cursor:pointer}
+.param-val{font-size:13px;font-weight:500;min-width:48px;text-align:right}
+
+.proposal-area{background:var(--surface2);border-radius:8px;padding:12px;margin-top:12px}
+.proposal-label{font-size:12px;color:var(--text3);margin-bottom:8px}
+.vote-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.vote-btn{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:12px;transition:all .15s}
+.vote-btn.voted-yes{background:#14532d;border-color:var(--green);color:var(--green)}
+.vote-btn.voted-no{background:#450a0a;border-color:var(--red);color:var(--red)}
+.vote-result{font-size:12px;color:var(--text2);margin-top:6px;padding:6px 8px;background:var(--surface);border-radius:6px;display:none}
+.vote-result.show{display:block}
+
+/* 因果链提示 */
+.chain-hint{background:#0f1e35;border:1px solid #1e3a5f;border-radius:8px;padding:12px;margin-top:8px;font-size:12px;color:#93c5fd;line-height:1.8;display:none}
+.chain-hint.show{display:block}
+.chain-arrow{color:#60a5fa;margin:0 4px}
+
+/* 话语句式 */
+.sentence-starters{margin-top:10px}
+.starter-tag{display:inline-block;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:11px;color:var(--text2);cursor:pointer;margin:2px;transition:all .15s}
+.starter-tag:hover{border-color:var(--blue);color:var(--blue)}
+
+/* RIGHT: CHAT */
+.right-panel{background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column}
+.chat-header{padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:space-between}
+.online-dots{display:flex;gap:4px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--text3)}
+.dot.active{background:var(--green)}
+.chat-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:240px;padding:8px 10px;border-radius:8px;font-size:12px;line-height:1.5}
+.msg-system{background:#0f2027;border:1px solid #1e3a5f;color:#7dd3fc;max-width:100%;border-radius:6px;font-size:11px}
+.msg-self{background:#1d4ed8;color:#fff;margin-left:auto;border-radius:8px 8px 2px 8px}
+.msg-other{background:var(--surface2);border:1px solid var(--border);border-radius:8px 8px 8px 2px}
+.msg-name{font-size:10px;color:var(--text3);margin-bottom:2px}
+.chat-input-area{padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:8px}
+.chat-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:13px;resize:none;height:36px;font-family:inherit}
+.chat-input:focus{outline:none;border-color:var(--blue)}
+.send-btn{padding:8px 12px;background:var(--blue);border:none;border-radius:8px;color:#fff;cursor:pointer;font-size:12px}
+
+/* MODAL */
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
+.modal-backdrop.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;max-width:480px;width:100%;margin:16px}
+.modal h2{font-size:18px;font-weight:600;margin-bottom:8px}
+.modal p{color:var(--text2);font-size:14px;line-height:1.6;margin-bottom:16px}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end}
+
+/* PHASE BANNER */
+.phase-banner{padding:8px 20px;text-align:center;font-size:12px;font-weight:500}
+
+/* SCIENCE LINK */
+.science-tip{font-size:11px;color:var(--text3);margin-top:6px;line-height:1.5}
+
+/* scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.tag{display:inline-block;font-size:10px;padding:1px 6px;border-radius:4px;margin-left:4px;vertical-align:middle}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-title">
+    <h1>🚀 火星拓荒者</h1>
+    <p>微型生态系统构建挑战 · 选择你的角色进入基地</p>
+  </div>
+  <div class="role-grid" id="role-grid"></div>
+  <p style="color:var(--text3);font-size:12px">演示模式 · 每个角色只能看到自己权限范围内的参数</p>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="header">
+    <div class="header-logo">🚀 <span>火星基地</span> Alpha-1</div>
+    <div class="day-counter">第 <span class="day-num" id="day-display">1</span> 天 / 300天</div>
+    <span class="role-tag" id="role-tag-header"></span>
+    <div class="header-btns">
+      <button class="btn" onclick="triggerCrisis()">触发危机</button>
+      <button class="btn" onclick="showScaffold()">获取提示</button>
+      <button class="btn btn-danger" onclick="resetToLogin()">切换角色</button>
+    </div>
+  </div>
+
+  <div id="phase-banner" class="phase-banner"></div>
+
+  <div class="main">
+    <!-- LEFT: 生态圈状态 -->
+    <div class="left-panel">
+      <div class="panel-title">生态圈实时状态</div>
+
+      <div class="crisis-box" id="crisis-box">
+        <div class="crisis-title">⚠ 危机警报</div>
+        <div class="crisis-desc" id="crisis-desc"></div>
+      </div>
+
+      <div class="info-box" id="ai-alert"></div>
+
+      <div id="gauges-container"></div>
+
+      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+        <div class="panel-title">存活预测</div>
+        <div style="font-size:24px;font-weight:600;margin-bottom:4px" id="survival-days">--</div>
+        <div style="font-size:12px;color:var(--text2)">基于当前参数估算可维持天数</div>
+        <div style="margin-top:12px">
+          <div class="panel-title">拼图状态</div>
+          <div id="role-status-list" style="display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER: 控制台 -->
+    <div class="center-panel" id="center-panel"></div>
+
+    <!-- RIGHT: 通讯 -->
+    <div class="right-panel">
+      <div class="chat-header">
+        <span>基地通讯频道</span>
+        <div class="online-dots" id="online-dots"></div>
+      </div>
+      <div class="chat-messages" id="chat-messages">
+        <div class="msg msg-system">系统：所有角色已就位，任务开始。各位专家请先报告当前系统状态。</div>
+      </div>
+      <div style="padding:8px 12px;border-top:1px solid var(--border)">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:6px">快捷话语句式：</div>
+        <div id="quick-phrases" style="display:flex;flex-wrap:wrap;gap:4px"></div>
+      </div>
+      <div class="chat-input-area">
+        <textarea class="chat-input" id="chat-input" placeholder="发送消息..." onkeydown="handleChatKey(event)"></textarea>
+        <button class="send-btn" onclick="sendChat()">发送</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 共识投票弹窗 -->
+<div class="modal-backdrop" id="vote-modal">
+  <div class="modal">
+    <h2>参数修改提案</h2>
+    <p id="vote-modal-desc"></p>
+    <div style="background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:16px;font-size:13px" id="vote-detail"></div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:12px">需要至少 3 名成员同意方可执行（红绿灯机制）</div>
+    <div class="vote-row" id="vote-buttons"></div>
+    <div class="vote-result" id="vote-result-text"></div>
+    <div class="modal-btns" style="margin-top:16px">
+      <button class="btn" onclick="closeVoteModal()">取消提案</button>
+      <button class="btn btn-primary" id="execute-vote-btn" onclick="executeVote()" disabled>执行修改</button>
+    </div>
+  </div>
+</div>
+
+<!-- 脚手架提示弹窗 -->
+<div class="modal-backdrop" id="scaffold-modal">
+  <div class="modal">
+    <h2>🔍 系统分析提示</h2>
+    <p style="color:var(--text2);font-size:13px;margin-bottom:12px">检测到生态圈运行异常，以下是因果关系分析：</p>
+    <div id="scaffold-content" style="background:var(--surface2);border-radius:8px;padding:14px;font-size:13px;line-height:1.8;color:#93c5fd"></div>
+    <div class="modal-btns" style="margin-top:16px"><button class="btn btn-primary" onclick="closeScaffold()">我明白了</button></div>
+  </div>
+</div>
+
+<script>
+const ROLES = [
+  {id:'water', name:'水循环工程师', icon:'💧', color:'#3b82f6', bg:'#1d3461', desc:'负责水资源回收、蒸发调节与分配系统', badge:'水系统',
+   params:['water_recycle','humidity','water_reserve'],
+   sees:['water_recycle','humidity','water_reserve','oxygen','food'],
+   hidden:['power','solar','temp']},
+  {id:'agri', name:'农业专家', icon:'🌱', color:'#22c55e', bg:'#14301f', desc:'负责作物种植、光照管理与食物产出控制', badge:'农业系统',
+   params:['crop_area','light_hours','fertilizer'],
+   sees:['crop_area','light_hours','fertilizer','food','water_reserve','oxygen'],
+   hidden:['power','solar','humidity','water_recycle']},
+  {id:'energy', name:'能源主管', icon:'⚡', color:'#eab308', bg:'#2d2008', desc:'负责太阳能采集、电力分配与储能管理', badge:'能源系统',
+   params:['solar','power_dist_agri','power_dist_water'],
+   sees:['solar','power','power_dist_agri','power_dist_water'],
+   hidden:['oxygen','food','humidity','crop_area']},
+  {id:'atmo', name:'大气控制员', icon:'🌬', color:'#a855f7', bg:'#2a1350', desc:'负责氧气生产、CO₂回收与舱内温度调节', badge:'大气系统',
+   params:['algae','temp','co2_scrub'],
+   sees:['oxygen','co2','temp','algae','co2_scrub'],
+   hidden:['power','food','water_reserve','solar']},
+  {id:'struct', name:'结构工程师', icon:'🔧', color:'#f97316', bg:'#2d1503', desc:'负责设备维护、舱体密封与系统故障排查', badge:'结构系统',
+   params:['seal_integrity','maintenance'],
+   sees:['seal_integrity','maintenance','power','temp','water_reserve'],
+   hidden:['oxygen','food','crop_area','algae']},
+  {id:'cmd', name:'指挥官', icon:'🎖', color:'#ef4444', bg:'#2d0a0a', desc:'统筹协调各系统，有权召集紧急会议与最终决策', badge:'指挥系统',
+   params:[],
+   sees:['oxygen','food','power','water_reserve','temp','seal_integrity'],
+   hidden:[],
+   isCmd:true}
+];
+
+const PARAMS_DEF = {
+  oxygen:        {label:'氧气浓度',   unit:'%',  min:15, max:35, val:21, danger:17, warn:19, ideal:21, affect:'生存'},
+  co2:           {label:'CO₂浓度',    unit:'%',  min:0,  max:5,  val:0.4,danger:2, warn:1,  ideal:0.4,affect:'大气',invert:true},
+  food:          {label:'食物储量',   unit:'天', min:0,  max:300,val:200,danger:30, warn:60,  ideal:200,affect:'农业'},
+  water_reserve: {label:'水储量',     unit:'%',  min:0,  max:100,val:80, danger:20, warn:35,  ideal:80, affect:'水'},
+  power:         {label:'电力剩余',   unit:'%',  min:0,  max:100,val:70, danger:20, warn:35,  ideal:70, affect:'能源'},
+  temp:          {label:'舱内温度',   unit:'°C', min:15, max:35, val:22, danger:32, warn:28,  ideal:22, affect:'大气'},
+  humidity:      {label:'湿度',       unit:'%',  min:20, max:90, val:55, danger:80, warn:70,  ideal:55, affect:'水'},
+  seal_integrity:{label:'密封完整性', unit:'%',  min:0,  max:100,val:98, danger:85, warn:92,  ideal:98, affect:'结构',invert_danger:true},
+  algae:         {label:'藻类活性',   unit:'%',  min:0,  max:100,val:80, danger:30, warn:50,  ideal:80, affect:'大气'},
+  solar:         {label:'太阳能输入', unit:'%',  min:0,  max:100,val:75, danger:20, warn:40,  ideal:75, affect:'能源'},
+  crop_area:     {label:'种植面积',   unit:'m²', min:10, max:100,val:60, danger:20, warn:35,  ideal:60, affect:'农业'},
+  light_hours:   {label:'每日光照',   unit:'h',  min:6,  max:20, val:14, danger:8,  warn:10,  ideal:14, affect:'农业'},
+  fertilizer:    {label:'施肥强度',   unit:'%',  min:0,  max:100,val:60, danger:15, warn:30,  ideal:60, affect:'农业'},
+  water_recycle: {label:'水回收率',   unit:'%',  min:40, max:99, val:85, danger:50, warn:65,  ideal:85, affect:'水'},
+  co2_scrub:     {label:'CO₂洗涤率', unit:'%',  min:0,  max:100,val:80, danger:30, warn:50,  ideal:80, affect:'大气'},
+  power_dist_agri:{label:'农业供电比',unit:'%', min:0,  max:60, val:35, danger:10, warn:20,  ideal:35, affect:'能源'},
+  power_dist_water:{label:'水系统供电',unit:'%',min:0,  max:40, val:20, danger:5,  warn:10,  ideal:20, affect:'能源'},
+  maintenance:   {label:'维护投入',   unit:'%',  min:0,  max:100,val:70, danger:20, warn:40,  ideal:70, affect:'结构'},
+};
+
+const CAUSAL_CHAINS = {
+  power:[
+    '太阳能输入↓ → 总电力↓ → 农业光照不足 → 食物产出↓',
+    '电力↓ → 水回收系统减速 → 水储量↓ → 农业受影响',
+    '电力↓ → 藻类培养灯关闭 → 藻类活性↓ → 氧气生产↓'
+  ],
+  oxygen:[
+    '藻类活性↓ → 光合作用减弱 → 氧气↓ → 生命危险',
+    '舱内温度↑ → 氧气消耗↑ → 氧气浓度↓',
+    '密封完整性↓ → 氧气泄漏 → 浓度骤降'
+  ],
+  water:[
+    '水回收率↓ → 可用水↓ → 农业灌溉不足 → 食物减产',
+    '湿度过高 → 水循环效率↓ → 电力消耗↑'
+  ]
+};
+
+const CRISES = [
+  {name:'沙尘暴袭击', desc:'连续沙尘暴导致太阳能板遮蔽，太阳能输入下降 50%！电力系统告急，需要各系统紧急降耗。', effect:{solar:-35, power:-25}},
+  {name:'水管破裂', desc:'3号水循环管道出现微裂缝，水储量快速下降！结构工程师需要立即评估，其他角色协助减少用水。', effect:{water_reserve:-30, water_recycle:-20}},
+  {name:'藻类病变', desc:'光合生物反应器中检测到真菌污染，藻类活性骤降！氧气生产即将不足，需要紧急干预。', effect:{algae:-40, oxygen:-4}},
+  {name:'作物病害', desc:'主要粮食作物出现枯萎病，食物储量快速消耗！农业专家需要立即决策：隔离还是全部处置？', effect:{food:-80, fertilizer:-20}},
+];
+
+let state = {day:1, params:{}, role:null, votes:{}, chatLog:[], pendingChange:null, crisisActive:false};
+
+function initParams(){Object.keys(PARAMS_DEF).forEach(k=>{state.params[k]=PARAMS_DEF[k].val})}
+
+function getStatus(key){
+  const p=PARAMS_DEF[key], v=state.params[key];
+  if(p.invert_danger){ if(v<=p.danger)return'danger'; if(v<=p.warn)return'warn'; return'ok'; }
+  if(p.invert){ if(v>=p.danger)return'danger'; if(v>=p.warn)return'warn'; return'ok'; }
+  if(v<=p.danger)return'danger'; if(v<=p.warn)return'warn'; return'ok';
+}
+
+function getColor(status){return status==='danger'?'var(--red)':status==='warn'?'var(--yellow)':'var(--green)'}
+
+function calcSurvival(){
+  let score=100;
+  const critical=['oxygen','food','water_reserve','power'];
+  critical.forEach(k=>{const s=getStatus(k);if(s==='danger')score-=30;else if(s==='warn')score-=12;});
+  ['seal_integrity','algae','co2'].forEach(k=>{const s=getStatus(k);if(s==='danger')score-=15;else if(s==='warn')score-=6;});
+  score=Math.max(0,score);
+  return Math.round(score*3+Math.random()*10);
+}
+
+function renderGauges(){
+  const role=ROLES.find(r=>r.id===state.role);
+  const visibleKeys=role.sees.length>0?role.sees:(role.isCmd?['oxygen','food','power','water_reserve','temp','seal_integrity']:Object.keys(PARAMS_DEF));
+  const container=document.getElementById('gauges-container');
+  container.innerHTML='';
+  const seen=role.isCmd?['oxygen','food','power','water_reserve','temp','seal_integrity']:role.sees;
+  seen.forEach(key=>{
+    const p=PARAMS_DEF[key]; if(!p)return;
+    const v=state.params[key]; const st=getStatus(key);
+    const pct=Math.round((v-p.min)/(p.max-p.min)*100);
+    container.innerHTML+=`<div class="gauge-row">
+      <div class="gauge-label">
+        <span>${p.label}</span>
+        <span class="status-${st}">${typeof v==='number'&&v%1!==0?v.toFixed(1):Math.round(v)}${p.unit}</span>
+      </div>
+      <div class="gauge-bar"><div class="gauge-fill" id="gf-${key}" style="width:${pct}%;background:${getColor(st)}"></div></div>
+    </div>`;
+  });
+  document.getElementById('survival-days').textContent=calcSurvival()+'天';
+  document.getElementById('survival-days').style.color=calcSurvival()<60?'var(--red)':calcSurvival()<120?'var(--yellow)':'var(--green)';
+}
+
+function renderRoleStatus(){
+  const container=document.getElementById('role-status-list');
+  container.innerHTML=ROLES.map(r=>`<div style="display:flex;align-items:center;gap:8px;font-size:12px">
+    <span>${r.icon}</span>
+    <span style="flex:1;color:var(--text2)">${r.name}</span>
+    <span style="color:var(--green);font-size:10px">${r.id===state.role?'● 你':'● 在线'}</span>
+  </div>`).join('');
+}
+
+function renderOnlineDots(){
+  document.getElementById('online-dots').innerHTML=ROLES.map(r=>`<div class="dot active" title="${r.name}"></div>`).join('');
+}
+
+function renderCenterPanel(){
+  const role=ROLES.find(r=>r.id===state.role);
+  const panel=document.getElementById('center-panel');
+  let html='';
+
+  if(role.isCmd){
+    html+=`<div class="section-card">
+      <h3>🎖 指挥官总览面板</h3>
+      <p style="color:var(--text2);font-size:13px;line-height:1.7;margin-bottom:14px">
+        你的职责是统筹协调。你能看到所有关键指标，但<strong>无法直接操作</strong>任何系统参数。<br>
+        请通过通讯频道指挥各角色调整参数，并主持红绿灯共识投票。
+      </p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        ${['oxygen','food','power','water_reserve','temp','seal_integrity'].map(k=>{
+          const p=PARAMS_DEF[k],v=state.params[k],st=getStatus(k);
+          return`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center">
+            <div style="font-size:11px;color:var(--text2);margin-bottom:4px">${p.label}</div>
+            <div style="font-size:20px;font-weight:600;color:${getColor(st)}">${typeof v==='number'&&v%1!==0?v.toFixed(1):Math.round(v)}${p.unit}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="margin-top:14px;padding:12px;background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:8px;font-size:12px;color:#fde68a;line-height:1.6">
+        提示：使用"触发危机"按钮模拟突发事件，观察小组协作响应。使用"获取提示"查看因果分析。
+      </div>
+    </div>`;
+  } else {
+    html+=`<div class="section-card">
+      <h3>${role.icon} ${role.name} · 操作面板</h3>
+      <div style="color:var(--text2);font-size:12px;margin-bottom:14px;padding:8px 10px;background:var(--surface2);border-radius:6px;line-height:1.6">
+        你只能操作和查看<strong style="color:var(--text)">自己权限范围内</strong>的参数。其他系统数据需要向对应角色询问。
+      </div>
+      ${role.params.map(key=>{
+        const p=PARAMS_DEF[key],v=state.params[key],st=getStatus(key);
+        return`<div class="param-row">
+          <span class="param-label">${p.label}</span>
+          <input type="range" class="param-slider" min="${p.min}" max="${p.max}" step="${(p.max-p.min)>=50?1:0.1}" value="${v}"
+            oninput="previewParam('${key}',this.value)" onchange="proposeParam('${key}',this.value)">
+          <span class="param-val status-${st}" id="pv-${key}">${typeof v==='number'&&v%1!==0?v.toFixed(1):Math.round(v)}${p.unit}</span>
+        </div>
+        <div class="science-tip" id="tip-${key}"></div>`;
+      }).join('')}
+      
+      <div class="chain-hint" id="chain-hint-panel">
+        <strong style="color:#60a5fa">因果链分析：</strong><br>
+        <span id="chain-hint-text"></span>
+      </div>
+
+      <div class="proposal-area" id="proposal-area" style="display:none">
+        <div class="proposal-label">📋 提案等待投票（红绿灯共识机制）</div>
+        <div id="proposal-desc" style="font-size:13px;color:var(--text);margin-bottom:8px"></div>
+        <div class="vote-row" id="inline-votes"></div>
+        <div class="vote-result" id="inline-vote-result"></div>
+      </div>
+    </div>`;
+
+    if(role.hidden.length>0){
+      html+=`<div class="section-card locked" style="position:relative">
+        <div class="locked-overlay" style="display:flex;position:absolute;inset:0;align-items:center;justify-content:center;background:rgba(10,14,26,.85);border-radius:12px;z-index:2;flex-direction:column;gap:6px">
+          <span style="font-size:20px">🔒</span>
+          <span style="font-size:13px;color:var(--text2)">其他系统参数 · 无查看权限</span>
+          <span style="font-size:11px;color:var(--text3)">请向对应角色的同学询问</span>
+        </div>
+        <h3 style="filter:blur(3px)">其他系统参数</h3>
+        <div style="filter:blur(4px)">${role.hidden.map(k=>`<div style="height:28px;background:var(--surface2);border-radius:4px;margin-bottom:8px"></div>`).join('')}</div>
+      </div>`;
+    }
+  }
+
+  html+=`<div class="section-card">
+    <h3>💬 结构化话语句式</h3>
+    <div style="color:var(--text2);font-size:12px;margin-bottom:10px">点击句式快速插入到聊天框</div>
+    <div class="sentence-starters">
+      ${[
+        '如果我调整了[参数]，预测你的系统会[上升/下降]，因为...',
+        '你的提议解决了[某问题]，但牺牲了[某系统]，我们能否折中？',
+        '我的系统当前状态是：[状态]，需要你提供[资源]支持',
+        '我提议将[参数]从[当前值]调整到[目标值]，请大家投票',
+        '氧气系统告急！需要大气控制员立即汇报',
+      ].map(s=>`<span class="starter-tag" onclick="insertPhrase('${s.replace(/'/g,'\\\'')}')">${s}</span>`).join('')}
+    </div>
+  </div>`;
+
+  panel.innerHTML=html;
+}
+
+function previewParam(key,val){
+  const p=PARAMS_DEF[key];
+  const v=parseFloat(val);
+  const st=getStatus_preview(key,v);
+  const el=document.getElementById('pv-'+key);
+  if(el){el.textContent=(v%1!==0?v.toFixed(1):Math.round(v))+p.unit;el.className='param-val status-'+st;}
+  showChainHint(key,v);
+}
+
+function getStatus_preview(key,v){
+  const p=PARAMS_DEF[key];
+  if(p.invert_danger){if(v<=p.danger)return'danger';if(v<=p.warn)return'warn';return'ok';}
+  if(p.invert){if(v>=p.danger)return'danger';if(v>=p.warn)return'warn';return'ok';}
+  if(v<=p.danger)return'danger';if(v<=p.warn)return'warn';return'ok';
+}
+
+function showChainHint(key,val){
+  const p=PARAMS_DEF[key];
+  const hints={
+    solar:`太阳能输入→影响总电力→农业照明→食物产出→生存天数`,
+    light_hours:`光照时长↑→作物生长↑→食物产出↑，但需要更多电力`,
+    water_recycle:`水回收率↓→可用水↓→农业灌溉减少→减产`,
+    algae:`藻类活性→光合产氧→氧气浓度，下降到30%以下将导致氧气危机`,
+    temp:`温度↑→蒸发加快→湿度↑→水循环效率↓，同时消耗更多电力`,
+    co2_scrub:`CO₂洗涤率↓→CO₂积累→超过2%将损害认知功能`,
+    power_dist_agri:`农业供电比↑→光照更足→产出↑，但挤占水系统电力`,
+    crop_area:`种植面积↑→需要更多水和电，同时产出↑`,
+    seal_integrity:`密封完整性↓→氧气缓慢泄漏，低于85%将引发快速压降`,
+  };
+  const hint=hints[key];
+  const panel=document.getElementById('chain-hint-panel');
+  const text=document.getElementById('chain-hint-text');
+  if(hint&&panel&&text){
+    panel.classList.add('show');
+    text.textContent=hint;
+  }
+}
+
+let proposalTimer=null;
+function proposeParam(key,val){
+  const p=PARAMS_DEF[key];
+  const oldVal=state.params[key];
+  const newVal=parseFloat(val);
+  if(Math.abs(newVal-oldVal)<0.5)return;
+  
+  state.pendingChange={key,oldVal,newVal};
+  const area=document.getElementById('proposal-area');
+  const desc=document.getElementById('proposal-desc');
+  const votes=document.getElementById('inline-votes');
+  const result=document.getElementById('inline-vote-result');
+  
+  if(area){
+    area.style.display='block';
+    desc.textContent=`提案：将"${p.label}"从 ${typeof oldVal==='number'&&oldVal%1!==0?oldVal.toFixed(1):Math.round(oldVal)}${p.unit} → ${typeof newVal==='number'&&newVal%1!==0?newVal.toFixed(1):Math.round(newVal)}${p.unit}`;
+    result.className='vote-result';result.style.display='none';
+    
+    let yesCount=1;
+    votes.innerHTML=ROLES.map(r=>{
+      const isMe=r.id===state.role;
+      return`<button class="vote-btn ${isMe?'voted-yes':''}" id="vote-${r.id}" onclick="castVote('${r.id}')">${r.icon} ${r.name.split('·')[0].trim()} ${isMe?'✓ 同意':''}</button>`;
+    }).join('');
+    
+    addChat('system',`【提案】${ROLES.find(r=>r.id===state.role).name} 提议修改「${p.label}」，请各角色投票！`);
+    
+    if(proposalTimer)clearTimeout(proposalTimer);
+    proposalTimer=setTimeout(()=>{
+      const yesVotes=document.querySelectorAll('.vote-btn.voted-yes').length;
+      const noVotes=document.querySelectorAll('.vote-btn.voted-no').length;
+      if(yesVotes>=3&&state.pendingChange){
+        applyChange(state.pendingChange.key,state.pendingChange.newVal);
+        result.textContent=`✓ 提案通过（${yesVotes}票同意），参数已更新`;
+        result.style.display='block';result.style.color='var(--green)';
+        addChat('system',`✅ 提案通过！「${p.label}」已更新为 ${typeof newVal==='number'&&newVal%1!==0?newVal.toFixed(1):Math.round(newVal)}${p.unit}`);
+        state.pendingChange=null;
+        setTimeout(()=>{if(area)area.style.display='none'},3000);
+      } else {
+        result.textContent=`✗ 提案未通过（仅${yesVotes}票同意，需3票），参数已回滚`;
+        result.style.display='block';result.style.color='var(--red)';
+        const slider=document.querySelector(`input[onchange*="${state.pendingChange?.key}"]`);
+        if(slider)slider.value=oldVal;
+        const el=document.getElementById('pv-'+(state.pendingChange?.key||key));
+        if(el&&state.pendingChange){el.textContent=(Math.round(oldVal*10)/10)+p.unit;}
+        state.pendingChange=null;
+        setTimeout(()=>{if(area)area.style.display='none'},3000);
+      }
+    },10000);
+  }
+}
+
+let voteState={};
+function castVote(roleId){
+  if(roleId===state.role)return;
+  const btn=document.getElementById('vote-'+roleId);
+  if(!btn)return;
+  const current=voteState[roleId];
+  if(current==='yes'){voteState[roleId]='no';btn.className='vote-btn voted-no';btn.innerHTML=btn.innerHTML.split(' ')[0]+' '+ROLES.find(r=>r.id===roleId).name+' ✗ 反对';}
+  else{voteState[roleId]='yes';btn.className='vote-btn voted-yes';btn.innerHTML=btn.innerHTML.split(' ')[0]+' '+ROLES.find(r=>r.id===roleId).name+' ✓ 同意';}
+}
+
+function applyChange(key,val){
+  state.params[key]=parseFloat(val);
+  computeEffects();
+  renderGauges();
+  advanceDay(1);
+}
+
+function computeEffects(){
+  const p=state.params;
+  p.power=Math.min(100,Math.max(0,Math.round(p.solar*0.9-p.light_hours*1.2-10)));
+  p.oxygen=Math.min(35,Math.max(14,21+(p.algae-80)*0.08-(p.temp-22)*0.1+(p.seal_integrity-98)*0.15));
+  p.food=Math.max(0,Math.min(300,p.food+(p.crop_area*0.5*p.light_hours/14-30)*(p.water_reserve/80)));
+  p.water_reserve=Math.max(0,Math.min(100,p.water_recycle-15+(p.humidity>70?-5:0)));
+  p.co2=Math.max(0,Math.min(5,0.4+(100-p.co2_scrub)*0.02+(p.temp-22)*0.05));
+  Object.keys(p).forEach(k=>{if(typeof p[k]==='number')p[k]=Math.round(p[k]*10)/10;});
+}
+
+function advanceDay(n){
+  state.day=Math.min(300,state.day+n);
+  document.getElementById('day-display').textContent=state.day;
+}
+
+function triggerCrisis(){
+  const crisis=CRISES[Math.floor(Math.random()*CRISES.length)];
+  Object.entries(crisis.effect).forEach(([k,delta])=>{
+    if(state.params[k]!==undefined)state.params[k]=Math.max(0,state.params[k]+delta);
+  });
+  computeEffects();
+  renderGauges();
+  renderCenterPanel();
+  const box=document.getElementById('crisis-box');
+  const desc=document.getElementById('crisis-desc');
+  box.classList.add('active');
+  desc.textContent=crisis.desc;
+  state.crisisActive=true;
+  addChat('system','🚨 危机！'+crisis.name+'——'+crisis.desc);
+  document.getElementById('ai-alert').textContent='';
+  document.getElementById('ai-alert').classList.remove('show');
+  setTimeout(()=>{
+    const dangerRoles=checkDangerSilence();
+    if(dangerRoles){
+      const alert=document.getElementById('ai-alert');
+      alert.textContent='⚠ 系统检测：'+dangerRoles+' 尚未汇报状态，指挥官请立即要求其汇报！';
+      alert.classList.add('show');
+    }
+  },5000);
+}
+
+function checkDangerSilence(){
+  if(getStatus('oxygen')==='danger')return'大气控制员';
+  if(getStatus('power')==='danger')return'能源主管';
+  if(getStatus('food')==='danger')return'农业专家';
+  return null;
+}
+
+function showScaffold(){
+  const modal=document.getElementById('scaffold-modal');
+  const content=document.getElementById('scaffold-content');
+  let hints=[];
+  if(getStatus('power')==='danger'||getStatus('power')==='warn') hints=hints.concat(CAUSAL_CHAINS.power);
+  if(getStatus('oxygen')==='danger'||getStatus('oxygen')==='warn') hints=hints.concat(CAUSAL_CHAINS.oxygen);
+  if(getStatus('water_reserve')==='danger'||getStatus('water_reserve')==='warn') hints=hints.concat(CAUSAL_CHAINS.water);
+  if(hints.length===0) hints=['当前系统运行稳定，无明显风险链。','建议关注能源分配是否均衡。'];
+  content.innerHTML=hints.map((h,i)=>`<div style="margin-bottom:8px;padding:6px 10px;background:var(--surface);border-radius:6px">${i+1}. ${h}</div>`).join('');
+  modal.classList.add('show');
+}
+
+function closeScaffold(){document.getElementById('scaffold-modal').classList.remove('show')}
+function closeVoteModal(){document.getElementById('vote-modal').classList.remove('show')}
+
+function addChat(type,msg,role){
+  const messages=document.getElementById('chat-messages');
+  const div=document.createElement('div');
+  if(type==='system'){div.className='msg msg-system';div.textContent=msg;}
+  else if(type==='self'){div.className='msg msg-self';div.innerHTML=`<div style="font-size:10px;opacity:.7;margin-bottom:2px">你</div>${msg}`;}
+  else{
+    const r=ROLES.find(x=>x.id===role);
+    div.className='msg msg-other';
+    div.innerHTML=`<div class="msg-name" style="color:${r?r.color:'#888'}">${r?r.icon+' '+r.name:'未知'}</div>${msg}`;
+  }
+  messages.appendChild(div);
+  messages.scrollTop=messages.scrollHeight;
+}
+
+function insertPhrase(text){
+  const input=document.getElementById('chat-input');
+  input.value=text;input.focus();
+}
+
+function handleChatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}}
+
+function sendChat(){
+  const input=document.getElementById('chat-input');
+  const msg=input.value.trim();
+  if(!msg)return;
+  addChat('self',msg);
+  input.value='';
+  const role=ROLES.find(r=>r.id===state.role);
+  setTimeout(()=>{
+    const responses=[
+      '收到，正在调整中...',
+      '我这边数据显示没问题，请继续',
+      '好的，我需要你告诉我电力还剩多少',
+      '同意这个方案，我投绿灯',
+      '等等，这样会影响我的水系统！',
+      '明白了，马上操作',
+    ];
+    const randomRole=ROLES[Math.floor(Math.random()*ROLES.length)];
+    if(randomRole.id!==state.role){
+      addChat('other',responses[Math.floor(Math.random()*responses.length)],randomRole.id);
+    }
+  },1200+Math.random()*1500);
+}
+
+function resetToLogin(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  state.role=null;
+}
+
+function enterGame(roleId){
+  state.role=roleId;
+  initParams();
+  computeEffects();
+  const role=ROLES.find(r=>r.id===roleId);
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  const tag=document.getElementById('role-tag-header');
+  tag.textContent=role.icon+' '+role.name;
+  tag.style.background=role.bg;tag.style.color=role.color;tag.style.border='1px solid '+role.color+'44';
+  document.getElementById('phase-banner').style.background=role.bg;
+  document.getElementById('phase-banner').style.color=role.color;
+  document.getElementById('phase-banner').textContent='阶段二：基地合体 · 你是 '+role.name+'，掌握专属知识，与队友协作构建生态圈';
+  renderGauges();
+  renderCenterPanel();
+  renderRoleStatus();
+  renderOnlineDots();
+  renderQuickPhrases();
+  voteState={};
+  addChat('system',role.icon+' '+role.name+'加入了基地，当前系统状态：'+getSystemSummary());
+}
+
+function getSystemSummary(){
+  const critical=['oxygen','food','power','water_reserve'];
+  return critical.map(k=>{
+    const p=PARAMS_DEF[k],v=state.params[k],st=getStatus(k);
+    return `${p.label}${st!=='ok'?'⚠':''}: ${Math.round(v)}${p.unit}`;
+  }).join(' | ');
+}
+
+function renderQuickPhrases(){
+  const role=ROLES.find(r=>r.id===state.role);
+  const phrases=role.hidden.length>0?
+    role.hidden.slice(0,3).map(k=>`询问${PARAMS_DEF[k]?.label||k}`):
+    ['召集紧急会议','请汇报系统状态','我需要更多电力','水储量告急'];
+  document.getElementById('quick-phrases').innerHTML=phrases.map(p=>
+    `<span class="starter-tag" onclick="insertPhrase('${p}')">${p}</span>`
+  ).join('');
+}
+
+function renderLoginRoles(){
+  const grid=document.getElementById('role-grid');
+  grid.innerHTML=ROLES.map(r=>`
+    <div class="role-card" onclick="enterGame('${r.id}')">
+      <div class="icon">${r.icon}</div>
+      <h3 style="color:${r.color}">${r.name}</h3>
+      <p>${r.desc}</p>
+      <span class="role-badge" style="background:${r.bg};color:${r.color};border:1px solid ${r.color}44">${r.badge}</span>
+    </div>`).join('');
+}
+
+renderLoginRoles();
+</script>
+</body>
+</html>
