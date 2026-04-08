@@ -139,12 +139,269 @@ input[type=range]{width:100%;accent-color:var(--blue);cursor:pointer}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
 .tag{display:inline-block;font-size:10px;padding:1px 6px;border-radius:4px;margin-left:4px;vertical-align:middle}
+
+/* GUIDE PAGE */
+#guide-screen{display:flex;flex-direction:column;min-height:100vh;background:var(--bg)}
+#guide-screen.hidden{display:none}
+.guide-nav{display:flex;align-items:center;justify-content:space-between;padding:16px 40px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:10}
+.guide-nav-logo{font-size:15px;font-weight:600}
+.guide-nav-logo span{color:var(--orange)}
+.guide-nav-steps{display:flex;gap:6px;align-items:center}
+.nav-step{width:28px;height:4px;border-radius:2px;background:var(--border);transition:background .3s}
+.nav-step.active{background:var(--blue)}
+.guide-content{flex:1;overflow-y:auto;padding:0 0 60px}
+.guide-footer{padding:20px 40px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;background:var(--bg);position:sticky;bottom:0}
+
+.g-hero{text-align:center;padding:64px 40px 48px;border-bottom:1px solid var(--border)}
+.g-badge{display:inline-block;font-size:11px;letter-spacing:1.5px;color:#6b7aaa;border:1px solid var(--border);border-radius:20px;padding:4px 14px;margin-bottom:20px;text-transform:uppercase}
+.g-hero h1{font-size:34px;font-weight:600;line-height:1.2;margin-bottom:14px}
+.g-hero h1 em{font-style:normal;color:var(--blue)}
+.g-hero p{font-size:15px;color:var(--text2);line-height:1.75;max-width:540px;margin:0 auto 32px}
+.g-stats{display:flex;justify-content:center;gap:48px}
+.g-stat-num{font-size:28px;font-weight:600}
+.g-stat-label{font-size:12px;color:var(--text3);margin-top:3px}
+
+.g-section{padding:44px 40px 0;max-width:900px;margin:0 auto}
+.g-section-label{font-size:11px;letter-spacing:1.5px;color:var(--blue);text-transform:uppercase;margin-bottom:12px}
+.g-section h2{font-size:21px;font-weight:500;margin-bottom:8px}
+.g-section-desc{font-size:14px;color:var(--text2);line-height:1.75;margin-bottom:24px}
+
+.g-roles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.g-role{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px}
+.g-role-icon{font-size:20px;margin-bottom:8px}
+.g-role-name{font-size:13px;font-weight:500;margin-bottom:4px}
+.g-role-desc{font-size:12px;color:var(--text3);line-height:1.6;margin-bottom:8px}
+.g-role-lock{font-size:11px;color:#7c3a1a;background:#1a0d05;border:1px solid #3d1f0a;border-radius:4px;padding:2px 7px;display:inline-block}
+
+.g-phases{display:flex;flex-direction:column;gap:0;position:relative}
+.g-phases::before{content:'';position:absolute;left:19px;top:28px;bottom:28px;width:1px;background:var(--border)}
+.g-phase{display:flex;gap:20px;padding-bottom:28px}
+.g-phase-dot{width:38px;height:38px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;background:var(--bg);z-index:1}
+.g-phase-body{padding-top:6px}
+.g-phase-title{font-size:14px;font-weight:500;margin-bottom:5px}
+.g-phase-text{font-size:13px;color:var(--text2);line-height:1.7}
+.g-phase-tag{display:inline-block;font-size:11px;border-radius:4px;padding:2px 8px;margin-top:8px;border:1px solid}
+
+.g-mechs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g-mech{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px}
+.g-mech-title{font-size:13px;font-weight:500;margin-bottom:6px}
+.g-mech-text{font-size:12px;color:var(--text3);line-height:1.65}
+.g-mech-eg{margin-top:9px;padding:8px 10px;border-radius:6px;font-size:11px;line-height:1.6;border-left:2px solid}
+
+.g-crises{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g-crisis{background:var(--surface);border:1px solid #2a1810;border-radius:10px;padding:14px}
+.g-crisis-name{font-size:13px;font-weight:500;color:var(--red);margin-bottom:4px}
+.g-crisis-eff{font-size:11px;color:#6a4a3a;margin-bottom:6px}
+.g-crisis-str{font-size:11px;color:var(--text3);padding-top:6px;border-top:1px solid #1a1210;line-height:1.6}
+
+.g-scoring{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g-score{border-radius:12px;padding:18px;border:1px solid}
+.g-score-pct{font-size:32px;font-weight:600;margin-bottom:4px}
+.g-score-type{font-size:13px;font-weight:500;margin-bottom:8px}
+.g-score-list{list-style:none;font-size:12px;color:var(--text3);line-height:1.9}
+.g-score-list li::before{content:'· ';color:var(--border)}
+.g-tip{background:var(--surface);border:1px solid #1e3050;border-radius:10px;padding:14px;margin-top:12px}
+.g-tip-title{font-size:11px;color:var(--blue);font-weight:500;letter-spacing:.5px;margin-bottom:8px}
+.g-tip-list{list-style:none;font-size:12px;color:var(--text3);line-height:1.9}
+.g-tip-list li::before{content:'→ ';color:var(--text3)}
 </style>
 </head>
 <body>
 
+<!-- GUIDE SCREEN -->
+<div id="guide-screen">
+  <div class="guide-nav">
+    <div class="guide-nav-logo">🚀 <span>火星拓荒者</span></div>
+    <div class="guide-nav-steps">
+      <div class="nav-step active" id="step-0"></div>
+      <div class="nav-step" id="step-1"></div>
+      <div class="nav-step" id="step-2"></div>
+    </div>
+    <button class="btn" onclick="skipToLogin()" style="font-size:12px;padding:4px 12px">跳过介绍 →</button>
+  </div>
+
+  <div class="guide-content" id="guide-content">
+
+    <!-- PAGE 0: HERO + 角色 -->
+    <div id="guide-p0">
+      <div class="g-hero">
+        <div class="g-badge">CSCL 协作学习任务</div>
+        <h1>火星拓荒者<br><em>微型生态系统构建挑战</em></h1>
+        <p>你和5位队友是首批火星殖民者。每个人掌握一块拼图，却没有人能独自生存。你们必须协作，让基地运转满300天。</p>
+        <div class="g-stats">
+          <div><div class="g-stat-num">6</div><div class="g-stat-label">专属角色</div></div>
+          <div><div class="g-stat-num">300</div><div class="g-stat-label">目标天数</div></div>
+          <div><div class="g-stat-num">4</div><div class="g-stat-label">危机类型</div></div>
+          <div><div class="g-stat-num">3票</div><div class="g-stat-label">共识门槛</div></div>
+        </div>
+      </div>
+
+      <div class="g-section">
+        <div class="g-section-label">核心设计</div>
+        <h2>为什么你必须开口问别人</h2>
+        <p class="g-section-desc">系统故意对每个角色隐藏部分信息。农业专家看不到电力剩余，能源主管看不到氧气浓度。没有人能凭自己的面板做出完整决策——<strong style="color:var(--text);font-weight:500">信息缺口就是协作动力。</strong></p>
+        <div class="g-roles" id="guide-roles"></div>
+      </div>
+    </div>
+
+    <!-- PAGE 1: 流程 + 机制 -->
+    <div id="guide-p1" style="display:none">
+      <div class="g-section" style="padding-top:40px">
+        <div class="g-section-label">游戏流程</div>
+        <h2>三个阶段，一次完整协作</h2>
+        <p class="g-section-desc">从专家培训到基地合体，再到危机应对，每个阶段都有明确目标。</p>
+        <div class="g-phases">
+          <div class="g-phase">
+            <div class="g-phase-dot" style="border-color:var(--blue);color:var(--blue)">1</div>
+            <div class="g-phase-body">
+              <div class="g-phase-title">专家组培训</div>
+              <div class="g-phase-text">同类角色的同学聚集在专家区，深入学习本领域核心知识——水循环原理、光合作用方程、电力分配逻辑。这是唯一没有时间压力的学习窗口。</div>
+              <span class="g-phase-tag" style="background:#0a1428;border-color:#1e3050;color:var(--blue)">目标：成为本领域专家</span>
+              <span class="g-phase-tag" style="background:var(--surface);border-color:var(--border);color:var(--text3)">建议15分钟</span>
+            </div>
+          </div>
+          <div class="g-phase">
+            <div class="g-phase-dot" style="border-color:var(--green);color:var(--green)">2</div>
+            <div class="g-phase-body">
+              <div class="g-phase-title">基地合体 · 启动仿真</div>
+              <div class="g-phase-text">各专家回到6人小组，每人选择对应角色进入系统。此刻你会发现，你需要的关键数据只有队友才知道。小组需要互相汇报状态，共同设定初始参数，让生态圈运转起来。</div>
+              <span class="g-phase-tag" style="background:#0a1e10;border-color:#1a3a20;color:var(--green)">关键任务：召开第一次参数对齐会议</span>
+            </div>
+          </div>
+          <div class="g-phase">
+            <div class="g-phase-dot" style="border-color:var(--red);color:var(--red)">3</div>
+            <div class="g-phase-body">
+              <div class="g-phase-title">系统联调 · 危机应对</div>
+              <div class="g-phase-text">仿真运行中途，系统随机触发危机事件。某个参数骤然下崩，牵连多个系统。小组需要在压力下紧急磋商：谁来牺牲？谁来补救？每次大幅调参都需要红绿灯投票，至少3人同意方可执行。</div>
+              <span class="g-phase-tag" style="background:#1a0a0a;border-color:#3d1515;color:var(--red)">高压协作：数据说话，不能凭感觉争论</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="g-section">
+        <div class="g-section-label">核心机制</div>
+        <h2>让协作真正发生的四个设计</h2>
+        <p class="g-section-desc">这不是"分工做PPT"，是牵一发而动全身的复杂系统，每个机制都在强迫深度协作。</p>
+        <div class="g-mechs">
+          <div class="g-mech">
+            <div class="g-mech-title">🔀 信息拼图</div>
+            <div class="g-mech-text">每个角色的仪表盘都有信息黑洞。你必须开口询问队友，才能做出完整决策。</div>
+            <div class="g-mech-eg" style="background:#0a1428;border-color:#1e3050;color:#60a5fa">农业专家想增加光照 → 需先问能源主管「电力还有多少余量？」</div>
+          </div>
+          <div class="g-mech">
+            <div class="g-mech-title">⚖️ 资源死循环</div>
+            <div class="g-mech-text">水、电、氧气、食物四个系统环环相扣，没有零代价的选择。</div>
+            <div class="g-mech-eg" style="background:#0a1e10;border-color:#1a3a20;color:#4ade80">农业↑ → 需更多电 → 水循环供电↓ → 水储量↓ → 农业反而减产</div>
+          </div>
+          <div class="g-mech">
+            <div class="g-mech-title">🗳️ 红绿灯共识</div>
+            <div class="g-mech-text">较大幅度的参数修改必须发起提案，获得至少3票同意才能执行，单人独断会被拦截。</div>
+            <div class="g-mech-eg" style="background:#1a0e05;border-color:#3d2010;color:#fb923c">提案10秒内投票 → 未达3票自动回滚 → 提案者需重新说服队友</div>
+          </div>
+          <div class="g-mech">
+            <div class="g-mech-title">💬 结构化话语</div>
+            <div class="g-mech-text">内置话语句式模板，引导用数据说话而不是情绪化争论。</div>
+            <div class="g-mech-eg" style="background:#0f0a1e;border-color:#2a1a50;color:#c084fc">「如果我把光照从14h调到18h，预测你的电力会下降约20%，因为…」</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 2: 危机 + 评分 -->
+    <div id="guide-p2" style="display:none">
+      <div class="g-section" style="padding-top:40px">
+        <div class="g-section-label">危机事件</div>
+        <h2>随机触发的四种危机</h2>
+        <p class="g-section-desc">危机会打破你们刚刚建立的平衡。这是检验协作质量的真正时刻。</p>
+        <div class="g-crises">
+          <div class="g-crisis">
+            <div class="g-crisis-name">☀️ 沙尘暴袭击</div>
+            <div class="g-crisis-eff">太阳能输入 −35%，总电力骤降</div>
+            <div class="g-crisis-str">能源主管紧急重分配，农业和水系统协商各自降耗多少</div>
+          </div>
+          <div class="g-crisis">
+            <div class="g-crisis-name">💧 水管破裂</div>
+            <div class="g-crisis-eff">水储量 −30%，水回收率 −20%</div>
+            <div class="g-crisis-str">结构工程师评估修复成本，农业专家决定是否立即减少灌溉</div>
+          </div>
+          <div class="g-crisis">
+            <div class="g-crisis-name">🦠 藻类病变</div>
+            <div class="g-crisis-eff">藻类活性 −40%，氧气生产接近停摆</div>
+            <div class="g-crisis-str">大气控制员召集紧急会议，全组评估氧气储备还能撑多久</div>
+          </div>
+          <div class="g-crisis">
+            <div class="g-crisis-name">🌾 作物病害</div>
+            <div class="g-crisis-eff">食物储量 −80天，施肥系统受损</div>
+            <div class="g-crisis-str">农业专家主导决策：隔离处置还是全量清除重种？</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="g-section">
+        <div class="g-section-label">评分规则</div>
+        <h2>成绩怎么算</h2>
+        <p class="g-section-desc">双轨制评估，结果和过程都算分。基地崩了不等于没分——关键在于你能说清楚为什么崩。</p>
+        <div class="g-scoring">
+          <div class="g-score" style="background:#0a1e10;border-color:#1a3a20">
+            <div class="g-score-pct" style="color:var(--green)">40%</div>
+            <div class="g-score-type" style="color:var(--green)">集体分</div>
+            <ul class="g-score-list">
+              <li>基地存活天数</li>
+              <li>结果导向</li>
+              <li>全组共享同一分数</li>
+            </ul>
+          </div>
+          <div class="g-score" style="background:#0a1428;border-color:#1e3050">
+            <div class="g-score-pct" style="color:var(--blue)">60%</div>
+            <div class="g-score-type" style="color:var(--blue)">个人分</div>
+            <ul class="g-score-list">
+              <li>危机爆发时的响应速度</li>
+              <li>提出有效假设的次数</li>
+              <li>促成共识的贡献度</li>
+              <li>话语质量（是否用数据说话）</li>
+            </ul>
+          </div>
+        </div>
+        <div class="g-tip">
+          <div class="g-tip-title">特别规则 · 生产性失败</div>
+          <ul class="g-tip-list">
+            <li>基地崩溃的小组不需要气馁</li>
+            <li>利用"黑匣子"记录，写出《火星基地灾难调查报告》</li>
+            <li>准确还原崩溃的连锁反应节点，同样可以获得最高评价</li>
+            <li>失败的深度分析 &gt; 侥幸维持的平庸运营</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="g-section" style="padding-bottom:20px">
+        <div class="g-section-label">演示说明</div>
+        <h2>怎么展示这个系统</h2>
+        <div class="g-mechs">
+          <div class="g-mech">
+            <div class="g-mech-title">推荐演示方式</div>
+            <div class="g-mech-text">打开6个浏览器标签，每个标签选不同角色。投影对比农业专家和能源主管的面板，现场演示"信息黑洞"效果。</div>
+          </div>
+          <div class="g-mech">
+            <div class="g-mech-title">三个高光时刻</div>
+            <div class="g-mech-text">① 切换角色展示信息隔离 → ② 点击"触发危机"看AI预警弹出 → ③ 拖动参数发起投票演示红绿灯机制</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- guide-content -->
+
+  <div class="guide-footer">
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="btn" id="guide-prev-btn" onclick="guidePrev()" style="display:none">← 上一页</button>
+      <button class="btn btn-primary" id="guide-next-btn" onclick="guideNext()">下一页 →</button>
+    </div>
+  </div>
+</div>
+
 <!-- LOGIN SCREEN -->
-<div id="login-screen">
+<div id="login-screen" style="display:none">
   <div class="login-title">
     <h1>🚀 火星拓荒者</h1>
     <p>微型生态系统构建挑战 · 选择你的角色进入基地</p>
@@ -730,6 +987,68 @@ function renderLoginRoles(){
 }
 
 renderLoginRoles();
+
+let guidePage = 0;
+const GUIDE_PAGES = 3;
+
+function renderGuideRoles(){
+  const container = document.getElementById('guide-roles');
+  if(!container) return;
+  const roleColors = {water:'#60a5fa',agri:'#4ade80',energy:'#fbbf24',atmo:'#c084fc',struct:'#fb923c',cmd:'#f87171'};
+  const roleLocks = {
+    water:'🔒 电力不可见 · 需询问能源主管',
+    agri:'🔒 总电力不可见 · 申请光照前先问能源',
+    energy:'🔒 氧气/食物不可见 · 不知道在省谁的命',
+    atmo:'🔒 只知道氧气快没 · 不知道原因',
+    struct:'🔒 密封漏气但不知氧气剩余',
+    cmd:'核心职责：发现危机 · 协调各方 · 主持投票'
+  };
+  container.innerHTML = ROLES.map(r => `
+    <div class="g-role">
+      <div class="g-role-icon">${r.icon}</div>
+      <div class="g-role-name" style="color:${roleColors[r.id]||'var(--text)'}">${r.name}</div>
+      <div class="g-role-desc">${r.desc}</div>
+      <span class="g-role-lock" style="${r.id==='cmd'?'color:var(--red);background:#1a0505;border-color:#5a1010':''}">${roleLocks[r.id]||''}</span>
+    </div>`).join('');
+}
+
+function updateGuideNav(){
+  document.querySelectorAll('.nav-step').forEach((el,i)=>{
+    el.classList.toggle('active', i<=guidePage);
+  });
+  const prevBtn = document.getElementById('guide-prev-btn');
+  const nextBtn = document.getElementById('guide-next-btn');
+  if(prevBtn) prevBtn.style.display = guidePage===0 ? 'none' : '';
+  if(nextBtn) nextBtn.textContent = guidePage===GUIDE_PAGES-1 ? '选择角色，开始任务 →' : '下一页 →';
+  document.getElementById('guide-p0').style.display = guidePage===0 ? '' : 'none';
+  document.getElementById('guide-p1').style.display = guidePage===1 ? '' : 'none';
+  document.getElementById('guide-p2').style.display = guidePage===2 ? '' : 'none';
+  document.getElementById('guide-content').scrollTop = 0;
+}
+
+function guideNext(){
+  if(guidePage < GUIDE_PAGES-1){ guidePage++; updateGuideNav(); }
+  else { skipToLogin(); }
+}
+
+function guidePrev(){
+  if(guidePage > 0){ guidePage--; updateGuideNav(); }
+}
+
+function skipToLogin(){
+  document.getElementById('guide-screen').classList.add('hidden');
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+function resetToLogin(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('guide-screen').classList.add('hidden');
+  document.getElementById('login-screen').style.display='flex';
+  state.role=null;
+}
+
+renderGuideRoles();
+updateGuideNav();
 </script>
 </body>
 </html>
